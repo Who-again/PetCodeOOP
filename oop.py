@@ -1,4 +1,6 @@
+import time
 import json
+import threading
 
 
 class Pet:
@@ -10,18 +12,14 @@ class Pet:
 
     def feed(self):
         self.hunger -= 15
-        if self.hunger > 100:
-            self.hunger = 100
-        elif self.hunger < 0:
+        if self.hunger < 0:
             self.hunger = 0
         print("You fed (yum)")
 
     def play(self):
         self.boredom -= 25
         print("yoo its so fun to play with yoohooo")
-        if self.boredom > 100:
-            self.boredom = 100
-        elif self.boredom < 0:
+        if self.boredom < 0:
             self.boredom = 0
 
     def status(self):
@@ -54,6 +52,13 @@ class Pet:
 
             self.save_game()
 
+    def state_decay(self):
+        while True:
+            time.sleep(1)
+            self.boredom += 1
+            self.hunger += 1
+            # Use the threadingg module to run this function concurrently
+
 
 pet = Pet("YOUR NAME")  # Your pet's name! or your friends oooo
 
@@ -61,8 +66,10 @@ pet = Pet("YOUR NAME")  # Your pet's name! or your friends oooo
 def main():
 
     pet.load_game()
-
     game_running = True
+
+    thread_decay = threading.Thread(target=pet.state_decay, daemon=True)
+    thread_decay.start()
 
     print(f"Look it's your pet {pet.name}! so cute")
     print(
@@ -70,7 +77,7 @@ def main():
     )
 
     while pet.hunger < 100 and pet.boredom < 100 and game_running:
-        print("Feed, Play, Quit")
+        print("Feed, Play, Stats, Quit")
         pet.status()
         user_input = input(f"What do you want to do with {pet.name}? :")
 
@@ -84,6 +91,8 @@ def main():
 
         elif user_input == "Play" or user_input == "play":
             pet.play()
+        elif user_input == "Stats" or user_input == "stats":
+            pet.status()
         else:
             print("MISS INPUT (Out of range A-z only)")
 
